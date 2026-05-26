@@ -6,7 +6,7 @@ locals {
   }
 }
 
-resource "aws_organizations_policy" "deny_unapproved_regions" {
+resource "aws_organizations_policy" "region_restriction_scp" {
   name        = "DenyUnapprovedRegions"
   description = "Deny regional AWS actions outside the approved home lab Regions."
   type        = "SERVICE_CONTROL_POLICY"
@@ -29,9 +29,15 @@ resource "aws_organizations_policy" "deny_unapproved_regions" {
   })
 }
 
-resource "aws_organizations_policy_attachment" "deny_unapproved_regions" {
+resource "aws_organizations_policy_attachment" "region_restriction_scp_attachment" {
   for_each = var.target_ids
 
-  policy_id = aws_organizations_policy.deny_unapproved_regions.id
+  policy_id = aws_organizations_policy.region_restriction_scp.id
   target_id = each.value
+}
+
+resource "aws_organizations_organization" "trusted_service_access" {
+  aws_service_access_principals = sort(tolist(var.trusted_service_access_principals))
+
+  feature_set = "ALL"
 }

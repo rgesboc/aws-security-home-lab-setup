@@ -1,6 +1,6 @@
 output "deny_unapproved_regions_policy_id" {
   description = "SCP ID for the deny-unapproved-regions guardrail."
-  value       = aws_organizations_policy.deny_unapproved_regions.id
+  value       = aws_organizations_policy.region_restriction_scp.id
 }
 
 output "allowed_regions" {

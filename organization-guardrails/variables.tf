@@ -16,6 +16,15 @@ variable "environment" {
   default     = "home-lab"
 }
 
+
+variable "trusted_service_access_principals" {
+  description = "AWS service principals allowed to integrate with AWS Organizations. Include existing trusted services so Terraform does not disable them."
+  type        = set(string)
+  default = [
+    "cloudtrail.amazonaws.com",
+    "sso.amazonaws.com"
+  ]
+}
 variable "target_ids" {
   description = "Organization root, OU, or account IDs to attach the region restriction SCP to. Do not attach until you have reviewed the plan."
   type        = set(string)

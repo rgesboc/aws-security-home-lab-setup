@@ -10,10 +10,10 @@ output "ebs_encryption_by_default_enabled" {
 
 output "external_access_analyzer_name" {
   description = "IAM Access Analyzer external access analyzer name, if enabled."
-  value       = try(aws_accessanalyzer_analyzer.external[0].analyzer_name, null)
+  value       = try(aws_accessanalyzer_analyzer.external_access[0].analyzer_name, null)
 }
 
 output "root_usage_alert_topic_arn" {
   description = "SNS topic ARN for root usage alerts, if enabled."
-  value       = try(aws_sns_topic.root_usage_alerts[0].arn, null)
+  value       = try(aws_sns_topic.root_usage_alert_topic[0].arn, null)
 }

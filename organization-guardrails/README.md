@@ -19,6 +19,22 @@ This baseline allows:
 It exempts global and account-management services such as IAM, Organizations,
 IAM Identity Center, Route 53, CloudFront, billing, budgets, and support.
 
+
+Trusted Service Access
+----------------------
+
+This root manages AWS Organizations trusted service access. Keep every existing
+trusted service in `trusted_service_access_principals`; otherwise Terraform may
+disable services that are omitted.
+
+Enabled by default:
+
+- `cloudtrail.amazonaws.com`
+- `sso.amazonaws.com`
+
+`cloudtrail.amazonaws.com` is required for organization CloudTrail.
+`sso.amazonaws.com` is required for IAM Identity Center account access.
+
 Deploy
 ------
 

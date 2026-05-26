@@ -6,7 +6,7 @@ locals {
   }
 }
 
-resource "aws_iam_account_password_policy" "this" {
+resource "aws_iam_account_password_policy" "iam_user_password_policy" {
   count = var.manage_iam_password_policy ? 1 : 0
 
   minimum_password_length        = 16
@@ -19,7 +19,7 @@ resource "aws_iam_account_password_policy" "this" {
   password_reuse_prevention      = 24
 }
 
-resource "aws_s3_account_public_access_block" "this" {
+resource "aws_s3_account_public_access_block" "account_public_access_block" {
   count = var.enable_s3_account_public_access_block ? 1 : 0
 
   block_public_acls       = true
@@ -28,20 +28,20 @@ resource "aws_s3_account_public_access_block" "this" {
   restrict_public_buckets = true
 }
 
-resource "aws_ebs_encryption_by_default" "this" {
+resource "aws_ebs_encryption_by_default" "regional_default_encryption" {
   count = var.enable_ebs_encryption_by_default ? 1 : 0
 
   enabled = true
 }
 
-resource "aws_accessanalyzer_analyzer" "external" {
+resource "aws_accessanalyzer_analyzer" "external_access" {
   count = var.enable_external_access_analyzer ? 1 : 0
 
   analyzer_name = "external-access"
   type          = "ACCOUNT"
 }
 
-resource "aws_sns_topic" "root_usage_alerts" {
+resource "aws_sns_topic" "root_usage_alert_topic" {
   count = var.enable_root_usage_notifications ? 1 : 0
 
   provider = aws.us_east_1
@@ -50,12 +50,12 @@ resource "aws_sns_topic" "root_usage_alerts" {
   kms_master_key_id = "alias/aws/sns"
 }
 
-resource "aws_sns_topic_policy" "root_usage_alerts" {
+resource "aws_sns_topic_policy" "root_usage_alert_topic_policy" {
   count = var.enable_root_usage_notifications ? 1 : 0
 
   provider = aws.us_east_1
 
-  arn = aws_sns_topic.root_usage_alerts[0].arn
+  arn = aws_sns_topic.root_usage_alert_topic[0].arn
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -67,23 +67,23 @@ resource "aws_sns_topic_policy" "root_usage_alerts" {
           Service = "events.amazonaws.com"
         }
         Action   = "sns:Publish"
-        Resource = aws_sns_topic.root_usage_alerts[0].arn
+        Resource = aws_sns_topic.root_usage_alert_topic[0].arn
       }
     ]
   })
 }
 
-resource "aws_sns_topic_subscription" "root_usage_email" {
+resource "aws_sns_topic_subscription" "root_usage_email_subscription" {
   count = var.enable_root_usage_notifications && var.enable_root_alert_email_subscription ? 1 : 0
 
   provider = aws.us_east_1
 
-  topic_arn = aws_sns_topic.root_usage_alerts[0].arn
+  topic_arn = aws_sns_topic.root_usage_alert_topic[0].arn
   protocol  = "email"
   endpoint  = var.root_alert_email
 }
 
-resource "aws_cloudwatch_event_rule" "root_console_login" {
+resource "aws_cloudwatch_event_rule" "root_console_login_rule" {
   count = var.enable_root_usage_notifications && var.enable_root_console_login_notifications ? 1 : 0
 
   provider = aws.us_east_1
@@ -103,16 +103,16 @@ resource "aws_cloudwatch_event_rule" "root_console_login" {
   })
 }
 
-resource "aws_cloudwatch_event_target" "root_console_login" {
+resource "aws_cloudwatch_event_target" "root_console_login_target" {
   count = var.enable_root_usage_notifications && var.enable_root_console_login_notifications ? 1 : 0
 
   provider = aws.us_east_1
 
-  rule = aws_cloudwatch_event_rule.root_console_login[0].name
-  arn  = aws_sns_topic.root_usage_alerts[0].arn
+  rule = aws_cloudwatch_event_rule.root_console_login_rule[0].name
+  arn  = aws_sns_topic.root_usage_alert_topic[0].arn
 }
 
-resource "aws_cloudwatch_event_rule" "root_api_activity" {
+resource "aws_cloudwatch_event_rule" "root_api_activity_rule" {
   count = var.enable_root_usage_notifications ? 1 : 0
 
   name        = "root-api-activity"
@@ -128,9 +128,9 @@ resource "aws_cloudwatch_event_rule" "root_api_activity" {
   })
 }
 
-resource "aws_cloudwatch_event_target" "root_api_activity" {
+resource "aws_cloudwatch_event_target" "root_api_activity_target" {
   count = var.enable_root_usage_notifications ? 1 : 0
 
-  rule = aws_cloudwatch_event_rule.root_api_activity[0].name
-  arn  = aws_sns_topic.root_usage_alerts[0].arn
+  rule = aws_cloudwatch_event_rule.root_api_activity_rule[0].name
+  arn  = aws_sns_topic.root_usage_alert_topic[0].arn
 }
