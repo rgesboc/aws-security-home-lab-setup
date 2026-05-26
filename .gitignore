@@ -1,0 +1,33 @@
+.env
+.env.*
+!.env.example
+
+# Terraform local state, plans, and variable overrides
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.tfplan
+terraform.tfplan
+.terraform/
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Local build output
+build/
+dist/
+*.zip
+
+# Scratch files that may contain account IDs or copied policy drafts
+Untitled-*.json
+**/Untitled-*.json
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
